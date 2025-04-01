@@ -479,6 +479,7 @@
   "Certificate approval required": "Certificate approval required",
   "An error occurred. Please try again": "An error occurred. Please try again",
   "No new Pods or workloads will be placed on this Node until it's marked as schedulable.": "No new Pods or workloads will be placed on this Node until it's marked as schedulable.",
+  "Remove Identity provider": "Remove Identity provider",
   "Identity providers": "Identity providers",
   "Mapping method": "Mapping method",
   "Basic Authentication": "Basic Authentication",

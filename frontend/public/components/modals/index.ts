@@ -131,6 +131,11 @@ export const removeUserModal = (props) =>
     m.removeUserModal(props),
   );
 
+export const removeIDPModal = (props) =>
+  import('./remove-idp-modal' /* webpackChunkName: "remove-user-modal" */).then((m) =>
+    m.removeIDPModal(props),
+  );
+
 export const restorePVCModal = (props) =>
   import(
     '@console/app/src/components/modals/restore-pvc/restore-pvc-modal' /* webpackChunkName: "restore-pvc-modal" */

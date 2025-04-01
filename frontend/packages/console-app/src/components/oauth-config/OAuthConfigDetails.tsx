@@ -135,7 +135,7 @@ export const OAuthConfigDetails: React.FC<OAuthDetailsProps> = ({ obj }: { obj: 
           <DropdownList>{IDPDropdownItems}</DropdownList>
         </Dropdown>
 
-        <IdentityProviders identityProviders={identityProviders} />
+        <IdentityProviders obj={obj} identityProviders={identityProviders} />
       </div>
     </>
   );

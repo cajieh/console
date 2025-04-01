@@ -1,10 +1,31 @@
 import * as React from 'react';
+import i18next from 'i18next';
 import * as _ from 'lodash';
 import { useTranslation } from 'react-i18next';
-import { EmptyBox } from '@console/internal/components/utils';
-import { IdentityProvider } from '@console/internal/module/k8s';
+import { removeIDPModal } from '@console/internal/components/modals';
+import { EmptyBox, Kebab, KebabOption, asAccessReview } from '@console/internal/components/utils';
+import { OAuthModel } from '@console/internal/models';
+import { IdentityProvider, OAuthKind } from '@console/internal/module/k8s';
 
-export const IdentityProviders: React.FC<IdentityProvidersProps> = ({ identityProviders }) => {
+const removeIDP = (obj: OAuthKind, idpName: string, type: string): KebabOption => {
+  return {
+    label: i18next.t('console-app~Remove Identity provider'),
+    callback: () =>
+      removeIDPModal({
+        obj,
+        idpName,
+        type,
+      }),
+    accessReview: asAccessReview(OAuthModel, obj, 'patch'),
+  };
+};
+
+const IDPKebab: React.FC<IDPKebabProps> = ({ obj, idpName, type }) => {
+  const options: KebabOption[] = [removeIDP(obj, idpName, type)];
+  return <Kebab options={options} />;
+};
+
+export const IdentityProviders: React.FC<IdentityProvidersProps> = ({ identityProviders, obj }) => {
   const { t } = useTranslation();
   return _.isEmpty(identityProviders) ? (
     <EmptyBox label={t('console-app~Identity providers')} />
@@ -30,6 +51,9 @@ export const IdentityProviders: React.FC<IdentityProvidersProps> = ({ identityPr
               <td className="pf-v6-c-table__td" data-test-idp-mapping-for={idp.name}>
                 {idp.mappingMethod || 'claim'}
               </td>
+              <td className="pf-v6-c-table__td" data-test-idp-kebab-for={idp.name}>
+                <IDPKebab obj={obj} idpName={idp.name} type={idp.type} />
+              </td>
             </tr>
           ))}
         </tbody>
@@ -40,4 +64,11 @@ export const IdentityProviders: React.FC<IdentityProvidersProps> = ({ identityPr
 
 type IdentityProvidersProps = {
   identityProviders: IdentityProvider[];
+  obj: OAuthKind;
+};
+
+type IDPKebabProps = {
+  obj: OAuthKind;
+  idpName: string;
+  type: string;
 };
