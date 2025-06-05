@@ -7,7 +7,7 @@ import { ListInput } from '../../../public/components/utils';
 import { IDPNameInput } from '../../../public/components/cluster-settings/idp-name-input';
 import { IDPCAFileInput } from '../../../public/components/cluster-settings/idp-cafile-input';
 import { AddLDAPPage } from '../../../public/components/cluster-settings/ldap-idp-form';
-import { controlButtonTest } from './basicauth-idp-form.spec';
+import { controlButtonTest } from './testUtils';
 
 describe('Add Identity Provider: LDAP', () => {
   let wrapper;
@@ -39,7 +39,7 @@ describe('Add Identity Provider: LDAP', () => {
   });
 
   it('should render control buttons in a button bar', () => {
-    controlButtonTest(wrapper);
+    controlButtonTest();
   });
 
   it('should prefill ldap in name field by default', () => {
