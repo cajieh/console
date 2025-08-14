@@ -9,6 +9,7 @@ import {
   Truncate,
 } from '@patternfly/react-core';
 import { css } from '@patternfly/react-styles';
+import Fuse from 'fuse.js';
 import * as _ from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom-v5-compat';
@@ -269,11 +270,249 @@ export const keywordCompare = (filterString, item) => {
 
   return (
     item.name.toLowerCase().includes(filterString) ||
-    _.get(item, 'obj.metadata.name', '').toLowerCase().includes(filterString) ||
+    (item.obj?.metadata?.name ?? '').toLowerCase().includes(filterString) ||
     (item.description && item.description.toLowerCase().includes(filterString)) ||
     (item.tags && item.tags.includes(filterString)) ||
     keywords.includes(filterString)
   );
+};
+
+// Specification scoring constants
+const SCORING = {
+  // Title scoring (max: 175 points)
+  TITLE_MATCH: 100,
+  TITLE_EXACT_BONUS: 50,
+  TITLE_STARTS_WITH_BONUS: 25,
+
+  // Metadata scoring (max: 140 points)
+  METADATA_MATCH: 80,
+  METADATA_EXACT_BONUS: 40,
+  METADATA_STARTS_WITH_BONUS: 20,
+
+  // Keywords scoring (max: 60 points)
+  KEYWORDS_MATCH: 60,
+
+  // Description scoring (max: 25 points)
+  DESCRIPTION_MATCH: 20,
+  DESCRIPTION_STARTS_WITH_BONUS: 5,
+
+  // Fuzzy match threshold for Fuse.js
+  FUZZY_MATCH_THRESHOLD: 0.6,
+} as const;
+
+// Fuse.js configuration for fuzzy search detection only
+const fuseSearchOptions = {
+  keys: ['name', 'obj.metadata.name', 'keywords', 'description'],
+  threshold: 0.4, // Liberal threshold to catch fuzzy matches
+  distance: 100,
+  includeScore: true,
+  includeMatches: true,
+  minMatchCharLength: 2,
+  shouldSort: false, // We'll do our own sorting
+  findAllMatches: true,
+  ignoreLocation: false,
+};
+
+/**
+ * Get Red Hat priority score for sorting
+ * @param item - OperatorHub item
+ * @returns Priority score: 1 = Red Hat operator, 0 = not Red Hat
+ *
+ * Implementation follows requirement: "use the Operator metadata.labels.provider value
+ * which includes the string Red Hat to prioritize operators over others"
+ */
+const getRedHatPriority = (item) => {
+  // Check metadata.labels.provider first (most reliable)
+  const metadataProvider = item?.obj?.metadata?.labels?.provider ?? '';
+  if (metadataProvider && metadataProvider.includes('Red Hat')) {
+    return 1; // Contains "Red Hat" string (case-sensitive as per requirement)
+  }
+
+  // Fallback to top-level provider field
+  const topLevelProvider = item?.provider ?? '';
+  if (topLevelProvider && topLevelProvider.includes('Red Hat')) {
+    return 1; // Contains "Red Hat" string (case-sensitive)
+  }
+
+  return 0; // Not Red Hat
+};
+
+/**
+ * Calculate specification-compliant relevance score
+ * Combines exact/starts-with logic with Fuse.js fuzzy matching
+ */
+const calculateRelevanceScore = (searchTerm, item) => {
+  if (!searchTerm || !item) {
+    return 0;
+  }
+
+  const searchLower = searchTerm.toLowerCase();
+  let totalScore = 0;
+
+  // Title scoring (name field) - Max: 175 points
+  const titleValue = item.name?.toLowerCase() || '';
+  if (titleValue === searchLower) {
+    totalScore += SCORING.TITLE_MATCH + SCORING.TITLE_EXACT_BONUS; // 100 + 50 = 150
+  } else if (titleValue.startsWith(searchLower)) {
+    totalScore += SCORING.TITLE_MATCH + SCORING.TITLE_STARTS_WITH_BONUS; // 100 + 25 = 125
+  } else if (titleValue.includes(searchLower)) {
+    totalScore += SCORING.TITLE_MATCH; // 100
+  }
+
+  // Metadata scoring (obj.metadata.name) - Max: 140 points
+  const metadataValue = (item.obj?.metadata?.name || '').toLowerCase();
+  if (metadataValue === searchLower) {
+    totalScore += SCORING.METADATA_MATCH + SCORING.METADATA_EXACT_BONUS; // 80 + 40 = 120
+  } else if (metadataValue.startsWith(searchLower)) {
+    totalScore += SCORING.METADATA_MATCH + SCORING.METADATA_STARTS_WITH_BONUS; // 80 + 20 = 100
+  } else if (metadataValue.includes(searchLower)) {
+    totalScore += SCORING.METADATA_MATCH; // 80
+  }
+
+  // Keywords scoring - Max: 60 points
+  const keywords = item.keywords?.map((k) => k.toLowerCase()) || [];
+  if (keywords.includes(searchLower)) {
+    totalScore += SCORING.KEYWORDS_MATCH; // 60
+  }
+
+  // Description scoring - Max: 25 points
+  const descriptionValue = (item.description || '').toLowerCase();
+  if (descriptionValue.startsWith(searchLower)) {
+    totalScore += SCORING.DESCRIPTION_MATCH + SCORING.DESCRIPTION_STARTS_WITH_BONUS; // 20 + 5 = 25
+  } else if (descriptionValue.includes(searchLower)) {
+    totalScore += SCORING.DESCRIPTION_MATCH; // 20
+  }
+
+  // If no exact/partial matches found, try fuzzy search with Fuse.js
+  if (totalScore === 0) {
+    const fuse = new Fuse([item], fuseSearchOptions);
+    const results = fuse.search(searchTerm);
+
+    if (results.length > 0) {
+      const fuseScore = 1 - results[0].score; // Convert to 0-1 scale
+      if (fuseScore >= SCORING.FUZZY_MATCH_THRESHOLD) {
+        // Award points based on which field matched in Fuse.js
+        const matches = results[0].matches || [];
+        for (const match of matches) {
+          switch (match.key) {
+            case 'name':
+              totalScore += SCORING.TITLE_MATCH * fuseScore;
+              break;
+            case 'obj.metadata.name':
+              totalScore += SCORING.METADATA_MATCH * fuseScore;
+              break;
+            case 'keywords':
+              totalScore += SCORING.KEYWORDS_MATCH * fuseScore;
+              break;
+            case 'description':
+              totalScore += SCORING.DESCRIPTION_MATCH * fuseScore;
+              break;
+            default:
+              // Unknown field, skip
+              break;
+          }
+        }
+      }
+    }
+  }
+
+  return totalScore;
+};
+
+/**
+ * Enhanced keyword comparison with specification-compliant scoring
+ * Returns object with matches, score, and item for internal use
+ */
+const keywordCompareWithScore = (filterString, item) => {
+  if (!filterString) {
+    return {
+      matches: true,
+      score: 0,
+      item: { ...item, relevanceScore: 0 },
+    };
+  }
+
+  if (!item) {
+    return {
+      matches: false,
+      score: 0,
+      item: null,
+    };
+  }
+
+  const score = calculateRelevanceScore(filterString, item);
+
+  return {
+    matches: score > 0,
+    score,
+    item: { ...item, relevanceScore: score },
+  };
+};
+
+/**
+ * Boolean keyword comparison for TileViewPage filtering
+ * This function is used by TileViewPage for filtering items
+ */
+export const keywordCompareForFilter = (filterString, item) => {
+  const result = keywordCompareWithScore(filterString, item);
+  return result.matches;
+};
+
+/**
+ * Sort operators by relevance score with Red Hat prioritization
+ */
+export const orderAndSortByRelevance = (items, searchTerm = '') => {
+  if (!items || !Array.isArray(items)) {
+    return [];
+  }
+
+  const validItems = items.filter((item) => item != null);
+
+  // If there's a search term, use relevance-based sorting
+  if (searchTerm) {
+    const itemsWithScores = validItems.map((item) => {
+      const result = keywordCompareWithScore(searchTerm, item);
+      return result.item;
+    });
+
+    return itemsWithScores.sort((a, b) => {
+      const aRedHatPriority = getRedHatPriority(a);
+      const bRedHatPriority = getRedHatPriority(b);
+      const scoreDiff = Math.abs((b.relevanceScore || 0) - (a.relevanceScore || 0));
+
+      // Apply Red Hat priority when scores are similar (within 30 points threshold)
+      if (aRedHatPriority !== bRedHatPriority && scoreDiff <= 30) {
+        return bRedHatPriority - aRedHatPriority;
+      }
+
+      // Primary sort by relevance score (descending)
+      if ((b.relevanceScore || 0) !== (a.relevanceScore || 0)) {
+        return (b.relevanceScore || 0) - (a.relevanceScore || 0);
+      }
+
+      // Secondary sort by Red Hat priority when scores are equal
+      if (aRedHatPriority !== bRedHatPriority) {
+        return bRedHatPriority - aRedHatPriority;
+      }
+
+      // Tertiary sort by name (alphabetical)
+      return (a.name || '').toLowerCase().localeCompare((b.name || '').toLowerCase());
+    });
+  }
+
+  // No search term - use Red Hat priority and alphabetical sorting
+  return validItems.sort((a, b) => {
+    const aRedHatPriority = getRedHatPriority(a);
+    const bRedHatPriority = getRedHatPriority(b);
+
+    // Primary sort by Red Hat priority
+    if (aRedHatPriority !== bRedHatPriority) {
+      return bRedHatPriority - aRedHatPriority;
+    }
+
+    // Secondary sort by name (alphabetical)
+    return (a.name || '').toLowerCase().localeCompare((b.name || '').toLowerCase());
+  });
 };
 
 const setURLParams = (params) => {
@@ -505,12 +744,12 @@ export const OperatorHubTileView: React.FC<OperatorHubTileViewProps> = (props) =
     <>
       <TileViewPage
         items={filteredItems}
-        itemsSorter={(itemsToSort) => _.sortBy(itemsToSort, ({ name }) => name.toLowerCase())}
+        itemsSorter={orderAndSortByRelevance}
         getAvailableCategories={determineCategories}
         getAvailableFilters={determineAvailableFilters}
         filterGroups={operatorHubFilterGroups}
         filterGroupNameMap={filterGroupNameMap}
-        keywordCompare={keywordCompare}
+        keywordCompare={keywordCompareForFilter}
         renderTile={renderTile}
         emptyStateTitle={t('olm~No Results Match the Filter Criteria')}
         emptyStateInfo={t(
