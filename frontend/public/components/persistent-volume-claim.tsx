@@ -4,7 +4,7 @@ import { css } from '@patternfly/react-styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { sortable } from '@patternfly/react-table';
 import { useTranslation } from 'react-i18next';
-import { ChartDonut } from '@patternfly/react-charts/victory';
+//import { ChartDonut } from '@patternfly/react-charts/victory';
 import { useExtensions } from '@console/plugin-sdk';
 import {
   isPVCAlert,
@@ -20,7 +20,7 @@ import {
   ActionMenuVariant,
   Status,
   FLAGS,
-  calculateRadius,
+  //calculateRadius,
   getNamespace,
   getName,
   getRequestedPVCSize,
@@ -46,7 +46,7 @@ import { PVCMetrics, setPVCMetrics } from '@console/internal/actions/ui';
 import { PrometheusEndpoint } from './graphs/helpers';
 import { RootState } from '@console/internal/redux';
 import { usePrometheusPoll } from './graphs/prometheus-poll-hook';
-import i18next from 'i18next';
+//import i18next from 'i18next';
 import {
   DescriptionList,
   DescriptionListDescription,
@@ -55,6 +55,7 @@ import {
   Grid,
   GridItem,
 } from '@patternfly/react-core';
+import { ChartUtilRightAlignedLegend } from './pvc-donut-chart';
 
 export const PVCStatusComponent: React.FC<PVCStatusProps> = ({ pvc }) => {
   const { t } = useTranslation();
@@ -178,18 +179,18 @@ const Details: React.FC<PVCDetailsProps> = ({ obj: pvc }) => {
   const totalCapacity = humanizeBinaryBytes(totalCapacityMetric);
   const availableCapacity = humanizeBinaryBytes(availableMetrics, undefined, totalCapacity.unit);
   const usedCapacity = humanizeBinaryBytes(usedMetrics, undefined, totalCapacity.unit);
-  const { podStatusInnerRadius: innerRadius, podStatusOuterRadius: radius } = calculateRadius(130);
-  const availableCapacityString = `${Number(availableCapacity.value.toFixed(1))} ${
-    availableCapacity.unit
-  }`;
+  // const { podStatusInnerRadius: innerRadius, podStatusOuterRadius: radius } = calculateRadius(130);
+  // const availableCapacityString = `${Number(availableCapacity.value.toFixed(1))} ${
+  //   availableCapacity.unit
+  // }`;
   const totalCapacityString = `${Number(totalCapacity.value.toFixed(1))} ${totalCapacity.unit}`;
 
-  const donutData = usedMetrics
-    ? [
-        { x: i18next.t('public~Used'), y: usedCapacity.value },
-        { x: i18next.t('public~Available'), y: availableCapacity.value },
-      ]
-    : [{ x: i18next.t('public~Total'), y: totalCapacity.value }];
+  // const donutData = usedMetrics
+  //   ? [
+  //       { x: i18next.t('public~Used'), y: usedCapacity.value },
+  //       { x: i18next.t('public~Available'), y: availableCapacity.value },
+  //     ]
+  //   : [{ x: i18next.t('public~Total'), y: totalCapacity.value }];
 
   const [pvcAlertExtensions] = useResolvedExtensions<PVCAlert>(isPVCAlert);
   const alertComponents = pvcAlertExtensions?.map(
@@ -201,7 +202,19 @@ const Details: React.FC<PVCDetailsProps> = ({ obj: pvc }) => {
       <PaneBody>
         {alertComponents}
         <SectionHeading text={t('public~PersistentVolumeClaim details')} />
-        {totalCapacityMetric && !loading && (
+        <div className="co-pvc-capacity-chart-container">
+          <ChartUtilRightAlignedLegend
+            totalCapacityMetric={totalCapacityMetric}
+            usedMetrics={usedMetrics ? Number(usedMetrics) : null}
+            availableMetrics={availableMetrics}
+            totalCapacityString={totalCapacityString}
+            usedCapacity={usedCapacity}
+            availableCapacity={availableCapacity}
+            loading={loading}
+            pvcStatus={pvc?.status?.phase}
+          />
+        </div>
+        {/* {totalCapacityMetric && !loading && (
           <div className="co-pvc-donut">
             <ChartDonut
               ariaDesc={
@@ -225,7 +238,7 @@ const Details: React.FC<PVCDetailsProps> = ({ obj: pvc }) => {
               constrainToVisibleArea={true}
             />
           </div>
-        )}
+        )} */}
         <Grid hasGutter>
           <GridItem sm={6}>
             <ResourceSummary resource={pvc}>
