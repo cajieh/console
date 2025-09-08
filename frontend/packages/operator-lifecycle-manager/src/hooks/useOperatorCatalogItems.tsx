@@ -90,6 +90,7 @@ export const useOperatorCatalogItems = () => {
 
   const [updateChannel, setUpdateChannel] = React.useState('');
   const [updateVersion, setUpdateVersion] = React.useState('');
+  const [tokenizedAuth, setTokenizedAuth] = React.useState(null);
 
   const loaded = React.useMemo(
     () =>
@@ -136,6 +137,18 @@ export const useOperatorCatalogItems = () => {
   const clusterIsAWSSTS = isAWSSTSCluster(cloudCredentials, infrastructure, authentication);
   const clusterIsAzureWIF = isAzureWIFCluster(cloudCredentials, infrastructure, authentication);
   const clusterIsGCPWIF = isGCPWIFCluster(cloudCredentials, infrastructure, authentication);
+
+  React.useEffect(() => {
+    if (clusterIsAWSSTS) {
+      setTokenizedAuth('AWS');
+    }
+    if (clusterIsAzureWIF) {
+      setTokenizedAuth('Azure');
+    }
+    if (clusterIsGCPWIF) {
+      setTokenizedAuth('GCP');
+    }
+  }, [clusterIsAWSSTS, clusterIsAzureWIF, clusterIsGCPWIF]);
 
   const items = React.useMemo(() => {
     if (!loaded || loadError) {
@@ -214,6 +227,7 @@ export const useOperatorCatalogItems = () => {
           catalog: catalogSource,
           catalogNamespace: catalogSourceNamespace,
           targetNamespace: namespace,
+          tokenizedAuth,
         }).toString();
 
         const installLink = `/operatorhub/subscribe?${installParamsURL}`;
@@ -441,6 +455,7 @@ export const useOperatorCatalogItems = () => {
     t,
     updateChannel,
     updateVersion,
+    tokenizedAuth,
   ]);
 
   return [items, loaded];
