@@ -737,15 +737,25 @@ export const OperatorHubTileView: React.FC<OperatorHubTileViewProps> = (props) =
       currentItem?.infraFeatures?.find((i) => i === InfrastructureFeature.TokenAuth)
     ) {
       // OCPBUGS-61183 fallback: Check annotations when cluster detection fails
+      console.log('DEBUG: Fallback logic triggered for operator:', currentItem?.name);
+      console.log('DEBUG: infraFeatures:', currentItem?.infraFeatures);
+      
       const currentCSVDesc = getCurrentCSVDescription(currentItem.obj);
       const annotations = currentCSVDesc?.annotations ?? {};
       
+      console.log('DEBUG: annotations keys:', Object.keys(annotations));
+      console.log('DEBUG: TokenAuthAzure annotation:', annotations[OLMAnnotation.TokenAuthAzure]);
+      
       if (annotations[OLMAnnotation.TokenAuthAzure] && 
           annotations[OLMAnnotation.TokenAuthAzure] !== 'false') {
+        console.log('DEBUG: Setting tokenizedAuth to Azure');
         setTokenizedAuth('Azure');
       } else if (annotations[OLMAnnotation.TokenAuthAWS] && 
                  annotations[OLMAnnotation.TokenAuthAWS] !== 'false') {
+        console.log('DEBUG: Setting tokenizedAuth to AWS');
         setTokenizedAuth('AWS');
+      } else {
+        console.log('DEBUG: No valid token auth annotations found');
       }
     }
     if (
