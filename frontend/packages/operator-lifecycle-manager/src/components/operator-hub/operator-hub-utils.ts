@@ -214,6 +214,18 @@ export const getInfrastructureFeatures: AnnotationParser<
   GetInfrastructureFeatureOptions
 > = (annotations, options) => {
   const { clusterIsAWSSTS, clusterIsAzureWIF, clusterIsGCPWIF, onError } = options ?? {};
+  
+  // Debug logging for OCPBUGS-61183
+  if (annotations[OLMAnnotation.TokenAuthAzure]) {
+    console.log('DEBUG: Found operator with token-auth-azure annotation:', {
+      annotationKeys: Object.keys(annotations),
+      azureValue: annotations[OLMAnnotation.TokenAuthAzure],
+      clusterIsAzureWIF,
+      clusterIsAWSSTS,
+      clusterIsGCPWIF
+    });
+  }
+  
   const parsedInfrastructureFeatures = parseInfrastructureFeaturesAnnotation(annotations, {
     onError,
   });
@@ -249,6 +261,17 @@ export const getInfrastructureFeatures: AnnotationParser<
         const hasValidAWSAnnotation = annotations[OLMAnnotation.TokenAuthAWS] && 
           annotations[OLMAnnotation.TokenAuthAWS] !== 'false';
         const annotationBasedSupport = hasValidAzureAnnotation || hasValidAWSAnnotation;
+        
+        console.log('DEBUG getInfrastructureFeatures:', {
+          key,
+          feature,
+          tokenAuthIsSupported,
+          hasValidAzureAnnotation,
+          hasValidAWSAnnotation,
+          annotationBasedSupport,
+          clusterIsAzureWIF: options?.clusterIsAzureWIF,
+          azureAnnotationValue: annotations[OLMAnnotation.TokenAuthAzure]
+        });
         
         return (tokenAuthIsSupported || annotationBasedSupport) ? includeFeature() : excludeFeature();
       };
