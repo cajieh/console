@@ -242,7 +242,15 @@ export const getInfrastructureFeatures: AnnotationParser<
 
       const resolveTokenAuthFeature = () => {
         const tokenAuthIsSupported = azureTokenAuthIsSupported || awsTokenAuthIsSupported;
-        return tokenAuthIsSupported ? includeFeature() : excludeFeature();
+        
+        // OCPBUGS-61183 fix: Support operators with token auth annotations even without cluster detection
+        const hasValidAzureAnnotation = annotations[OLMAnnotation.TokenAuthAzure] && 
+          annotations[OLMAnnotation.TokenAuthAzure] !== 'false';
+        const hasValidAWSAnnotation = annotations[OLMAnnotation.TokenAuthAWS] && 
+          annotations[OLMAnnotation.TokenAuthAWS] !== 'false';
+        const annotationBasedSupport = hasValidAzureAnnotation || hasValidAWSAnnotation;
+        
+        return (tokenAuthIsSupported || annotationBasedSupport) ? includeFeature() : excludeFeature();
       };
       const resolveTokenAuthGCPFeature = () => {
         return clusterIsGCPWIF ? includeFeature() : excludeFeature();

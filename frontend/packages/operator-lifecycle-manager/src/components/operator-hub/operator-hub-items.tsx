@@ -41,7 +41,8 @@ import {
   sourceSort,
   validSubscriptionSort,
 } from './operator-hub-utils';
-import { InfrastructureFeature, OperatorHubItem } from './index';
+import { InfrastructureFeature, OperatorHubItem, OLMAnnotation } from './index';
+import { getCurrentCSVDescription } from '../../utils/packagemanifests';
 
 // Scoring constants for relevance calculation
 const SCORE = {
@@ -732,6 +733,20 @@ export const OperatorHubTileView: React.FC<OperatorHubTileViewProps> = (props) =
       currentItem.infraFeatures?.find((i) => i === InfrastructureFeature.TokenAuth)
     ) {
       setTokenizedAuth('Azure');
+    } else if (
+      currentItem?.infraFeatures?.find((i) => i === InfrastructureFeature.TokenAuth)
+    ) {
+      // OCPBUGS-61183 fallback: Check annotations when cluster detection fails
+      const currentCSVDesc = getCurrentCSVDescription(currentItem.obj);
+      const annotations = currentCSVDesc?.annotations ?? {};
+      
+      if (annotations[OLMAnnotation.TokenAuthAzure] && 
+          annotations[OLMAnnotation.TokenAuthAzure] !== 'false') {
+        setTokenizedAuth('Azure');
+      } else if (annotations[OLMAnnotation.TokenAuthAWS] && 
+                 annotations[OLMAnnotation.TokenAuthAWS] !== 'false') {
+        setTokenizedAuth('AWS');
+      }
     }
     if (
       currentItem &&
