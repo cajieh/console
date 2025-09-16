@@ -9,6 +9,7 @@
     "jsx": "react-jsx",
     "strict": false,
     "allowJs": true,
+    "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "sourceMap": true,
     "noUnusedLocals": true,

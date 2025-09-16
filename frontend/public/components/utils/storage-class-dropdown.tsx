@@ -3,7 +3,7 @@ import * as _ from 'lodash-es';
 import * as React from 'react';
 import * as fuzzy from 'fuzzysearch';
 /* eslint-disable import/named */
-import { WithTranslation, withTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
 import { ConsoleSelect } from '@console/internal/components/utils/console-select';
 import { Firehose, LoadingInline, ResourceName, ResourceIcon } from '.';
@@ -13,7 +13,7 @@ import { css } from '@patternfly/react-styles';
 /* Component StorageClassDropdown - creates a dropdown list of storage classes */
 
 export class StorageClassDropdownInnerWithTranslation extends React.Component<
-  StorageClassDropdownInnerProps,
+  StorageClassDropdownInnerWithTranslationProps,
   StorageClassDropdownInnerState
 > {
   readonly state: StorageClassDropdownInnerState = {
@@ -204,9 +204,10 @@ export class StorageClassDropdownInnerWithTranslation extends React.Component<
   }
 }
 
-export const StorageClassDropdownInner = withTranslation()(
-  StorageClassDropdownInnerWithTranslation,
-);
+export const StorageClassDropdownInner = (props: StorageClassDropdownInnerProps) => {
+  const { t } = useTranslation();
+  return <StorageClassDropdownInnerWithTranslation {...props} t={t} />;
+};
 
 export const StorageClassDropdown = (props) => {
   return (
@@ -256,7 +257,7 @@ export type StorageClassDropdownInnerState = {
   defaultClass: string;
 };
 
-export type StorageClassDropdownInnerProps = WithTranslation & {
+export type StorageClassDropdownInnerProps = {
   id?: string;
   loaded?: boolean;
   resources?: any;
@@ -268,4 +269,8 @@ export type StorageClassDropdownInnerProps = WithTranslation & {
   hideClassName?: string;
   filter?: (param) => boolean;
   selectedKey?: string;
+};
+
+type StorageClassDropdownInnerWithTranslationProps = StorageClassDropdownInnerProps & {
+  t: (key: string, options?: any) => string;
 };

@@ -62,6 +62,13 @@ export const PageHeading = ({
   const isAdminPerspective = perspective === 'admin';
   const showFavoriteButton = isAdminPerspective && !hideFavoriteButton;
 
+  const pageHeaderLinkProps: PageHeaderLinkProps | undefined = linkProps
+    ? {
+        ...linkProps,
+        label: typeof linkProps.label === 'string' ? linkProps.label : String(linkProps.label),
+      }
+    : undefined;
+
   return (
     <div data-test={dataTest} className={css('co-page-heading', className)}>
       <PageHeader
@@ -83,7 +90,7 @@ export const PageHeading = ({
         }
         icon={icon}
         label={badge}
-        linkProps={linkProps}
+        linkProps={pageHeaderLinkProps}
         subtitle={helpText}
       >
         {helpAlert && helpAlert}

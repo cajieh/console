@@ -1,11 +1,10 @@
-import { TFunction } from 'i18next';
 import { CatalogItem } from '@console/dynamic-plugin-sdk/src';
 import { ConsoleSample } from '../../../../types';
 import { normalizeConsoleSamples } from '../useConsoleSamples';
 import { gitImportSample, containerImportSample } from './useConsoleSamples.data';
 
-export const t: TFunction = (key: string) =>
-  key.includes('~') ? key.substring(key.indexOf('~') + 1) : key;
+export const t = ((key: string) =>
+  key.includes('~') ? key.substring(key.indexOf('~') + 1) : key) as any;
 
 describe('normalizeConsoleSamples', () => {
   it('should return a correct CatalogItem for a git import sample', () => {

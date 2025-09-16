@@ -1,3 +1,4 @@
+import { TFunction } from 'i18next';
 import { Extension } from '../../typings';
 import { isTranslatableString, getTranslationKey, translateExtension } from '../extension-i18n';
 
@@ -43,7 +44,7 @@ describe('translateExtension', () => {
       },
     };
 
-    const t = jest.fn((key) => `translated: ${key}`);
+    const t = (jest.fn((key) => `translated: ${key}`) as any) as TFunction;
 
     expect(translateExtension(testExtension, t)).toEqual({
       type: 'Foo/Bar',
@@ -59,8 +60,8 @@ describe('translateExtension', () => {
       },
     });
 
-    expect(t.mock.calls.length).toBe(5);
-    expect(t.mock.calls).toEqual([
+    expect((t as any).mock.calls.length).toBe(5);
+    expect((t as any).mock.calls).toEqual([
       ['%test~1%'],
       ['%test~3%'],
       ['%test~5%'],
@@ -71,7 +72,7 @@ describe('translateExtension', () => {
 
   it('returns the same extension instance', () => {
     const testExtension: Extension = { type: 'Foo/Bar', properties: {} };
-    const t = jest.fn<string>();
+    const t = (jest.fn<string>() as any) as TFunction;
 
     expect(translateExtension(testExtension, t)).toBe(testExtension);
     expect(t).not.toHaveBeenCalled();

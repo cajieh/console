@@ -54,7 +54,7 @@ const VSphereStatus: React.FC<PrometheusHealthPopupProps> = ({ hide, responses, 
 };
 
 export const healthHandler: PrometheusHealthHandler = (responses, t, additionalResource) => {
-  const health = getVSphereHealth(t || (() => ''), responses, additionalResource);
+  const health = getVSphereHealth(t || ((() => '') as any), responses, additionalResource);
   const { state } = health;
 
   let message: string | undefined;

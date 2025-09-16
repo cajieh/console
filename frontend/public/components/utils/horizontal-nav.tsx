@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import * as _ from 'lodash-es';
 /* eslint-disable import/named */
-import { useTranslation, withTranslation, WithTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
 import {
   Routes,
@@ -47,7 +47,7 @@ export const viewYamlComponent = (props) => (
 );
 
 class PodsComponentWithTranslation extends React.PureComponent<
-  PodsComponentProps & WithTranslation
+  PodsComponentProps & { t: TFunction }
 > {
   render() {
     const {
@@ -74,7 +74,10 @@ class PodsComponentWithTranslation extends React.PureComponent<
   }
 }
 
-export const PodsComponent = withTranslation()(PodsComponentWithTranslation);
+export const PodsComponent = (props: PodsComponentProps) => {
+  const { t } = useTranslation();
+  return <PodsComponentWithTranslation {...props} t={t} />;
+};
 
 type NavFactory = { [name: string]: (c?: React.ComponentType<any>) => Page };
 export const navFactory: NavFactory = {
@@ -410,7 +413,6 @@ export const HorizontalNavFacade: React.FC<HorizontalNavFacadeProps> = ({
 export type PodsComponentProps = {
   obj: K8sResourceKind;
   showNodes?: boolean;
-  t: TFunction;
 };
 
 export type PageComponentProps<R extends K8sResourceCommon = K8sResourceKind> = {

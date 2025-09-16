@@ -103,8 +103,8 @@ export const getModelExtensionMetadata = (
   version?: string,
   kind?: string,
 ) => {
-  const tcb: TFunction = (value: string) =>
-    isTranslatableString(value) ? i18next.t(getTranslationKey(value)) : value;
+  const tcb = ((value: string) =>
+    isTranslatableString(value) ? i18next.t(getTranslationKey(value)) : value) as TFunction;
   const translatedExtensions = extensions.map((e) => translateExtension(e, tcb));
   const groupVersionKindMetadata = translatedExtensions
     .filter(
