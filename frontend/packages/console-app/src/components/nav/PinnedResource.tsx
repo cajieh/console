@@ -23,7 +23,7 @@ type PinnedResourceProps = {
 };
 
 type DraggableButtonProps = {
-  dragRef?: (node) => void | null;
+  dragRef?: (node: HTMLElement | null) => void;
 };
 
 type RemoveButtonProps = {
@@ -40,10 +40,18 @@ export type DragItem = {
 
 const DraggableButton: React.FC<DraggableButtonProps> = ({ dragRef }) => {
   const { t } = useTranslation();
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
+
+  React.useEffect(() => {
+    if (dragRef && typeof dragRef === 'function' && buttonRef.current) {
+      dragRef(buttonRef.current);
+    }
+  }, [dragRef]);
+
   return (
     <Button
       icon={<GripVerticalIcon className="oc-pinned-resource__drag-icon" />}
-      ref={dragRef}
+      ref={buttonRef}
       className="oc-pinned-resource__drag-button"
       variant="link"
       type="button"
