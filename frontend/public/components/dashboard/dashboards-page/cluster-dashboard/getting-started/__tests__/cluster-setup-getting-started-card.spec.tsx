@@ -7,11 +7,6 @@ import { ClusterSetupGettingStartedCard } from '../cluster-setup-getting-started
 import { useIdentityProviderLink } from '../cluster-setup-identity-provider-link';
 import { useAlertReceiverLink } from '../cluster-setup-alert-receiver-link';
 
-jest.mock('react', () => ({
-  ...jest.requireActual('react'),
-  useLayoutEffect: jest.requireActual('react').useEffect,
-}));
-
 jest.mock('@console/shared/src/hooks/useCanClusterUpgrade', () => ({
   useCanClusterUpgrade: jest.fn(),
 }));
@@ -23,20 +18,6 @@ jest.mock('../cluster-setup-identity-provider-link', () => ({
 jest.mock('../cluster-setup-alert-receiver-link', () => ({
   useAlertReceiverLink: jest.fn(),
 }));
-
-// Workaround because getting-started exports also RestoreGettingStartedButton
-jest.mock('@console/shared/src/hooks/useUserSettings', () => ({
-  useUserSettings: jest.fn(() => [null, jest.fn(), false]),
-}));
-
-// Workaround because getting-started exports also QuickStartGettingStartedCard
-jest.mock(
-  '@console/app/src/components/quick-starts/loader/QuickStartsLoader',
-  () =>
-    function QuickStartsLoaderMock({ children }) {
-      return children;
-    },
-);
 
 const useCanClusterUpgradeMock = useCanClusterUpgrade as jest.Mock;
 const useIdentityProviderLinkMock = useIdentityProviderLink as jest.Mock;

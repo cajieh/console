@@ -2,36 +2,17 @@ import { screen, configure, act } from '@testing-library/react';
 
 import { renderWithProviders } from '@console/shared/src/test-utils/unit-test-utils';
 import { ExploreAdminFeaturesGettingStartedCard } from '../explore-admin-features-getting-started-card';
-
-jest.mock('react', () => ({
-  ...jest.requireActual('react'),
-  useLayoutEffect: jest.requireActual('react').useEffect,
-}));
+import { useFlag } from '@console/shared/src/hooks/flag';
 
 jest.mock('@console/shared/src', () => ({
   ...jest.requireActual('@console/shared/src'),
   useOpenShiftVersion: () => '4.16.0',
 }));
 
-// Workaround because getting-started exports also RestoreGettingStartedButton
-jest.mock('@console/shared/src/hooks/useUserSettings', () => ({
-  useUserSettings: jest.fn(() => [null, jest.fn(), false]),
-}));
-
-// Workaround because getting-started exports also QuickStartGettingStartedCard
-jest.mock(
-  '@console/app/src/components/quick-starts/loader/QuickStartsLoader',
-  () =>
-    function QuickStartsLoaderMock({ children }) {
-      return children;
-    },
-);
-
 jest.mock('@console/shared/src/hooks/flag', () => ({
   useFlag: jest.fn(),
 }));
 
-import { useFlag } from '@console/shared/src/hooks/flag';
 const mockUseFlag = useFlag as jest.Mock;
 
 describe('ExploreAdminFeaturesGettingStartedCard', () => {

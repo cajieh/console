@@ -5,11 +5,6 @@ import { useActiveNamespace, CatalogServiceProvider } from '@console/shared/src'
 import { loadingCatalogService, loadedCatalogService } from './SampleGettingStartedCard.data';
 import { SampleGettingStartedCard } from '../SampleGettingStartedCard';
 
-jest.mock('react', () => ({
-  ...jest.requireActual('react'),
-  useLayoutEffect: jest.requireActual('react').useEffect,
-}));
-
 jest.mock('@console/shared/src/hooks/useActiveNamespace', () => ({
   useActiveNamespace: jest.fn(),
 }));
@@ -17,20 +12,6 @@ jest.mock('@console/shared/src/hooks/useActiveNamespace', () => ({
 jest.mock('@console/shared/src/components/catalog/service/CatalogServiceProvider', () => ({
   default: jest.fn(),
 }));
-
-// Workaround because getting-started exports also useGettingStartedShowState
-jest.mock('@console/shared/src/hooks/useUserSettings', () => ({
-  useUserSettings: jest.fn(() => [true, jest.fn(), false]),
-}));
-
-// Workaround because getting-started exports also QuickStartGettingStartedCard
-jest.mock(
-  '@console/app/src/components/quick-starts/loader/QuickStartsLoader',
-  () =>
-    function QuickStartsLoaderMock({ children }) {
-      return children;
-    },
-);
 
 const useActiveNamespaceMock = useActiveNamespace as jest.Mock;
 const CatalogServiceProviderMock = CatalogServiceProvider as jest.Mock;
@@ -43,9 +24,6 @@ describe('SampleGettingStartedCard', () => {
   beforeEach(() => {
     useActiveNamespaceMock.mockReset();
     CatalogServiceProviderMock.mockReset();
-
-    // Clean up any SERVER_FLAGS from previous tests
-    delete window.SERVER_FLAGS.addPage;
   });
 
   afterEach(() => {

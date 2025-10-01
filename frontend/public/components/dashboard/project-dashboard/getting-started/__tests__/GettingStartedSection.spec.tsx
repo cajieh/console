@@ -29,19 +29,9 @@ jest.mock('@console/shared/src/components/getting-started', () => ({
   QuickStartGettingStartedCard: () => 'Quick start tutorials',
 }));
 
-// Workaround because getting-started exports also useGettingStartedShowState
 jest.mock('@console/shared/src/hooks/useUserSettings', () => ({
   useUserSettings: jest.fn(() => [true, jest.fn(), false]),
 }));
-
-// Workaround because getting-started exports also QuickStartGettingStartedCard
-jest.mock(
-  '@console/app/src/components/quick-starts/loader/QuickStartsLoader',
-  () =>
-    function QuickStartsLoaderMock({ children }) {
-      return children;
-    },
-);
 
 const mockUserSettings = useUserSettings as jest.Mock;
 const useFlagMock = useFlag as jest.Mock;
