@@ -64,9 +64,7 @@ describe('GettingStartedSection', () => {
       );
     });
 
-    const contentContainer = screen
-      .getByTestId('getting-started')
-      .querySelector('#getting-started-content');
+    const contentContainer = screen.getByTestId('getting-started-content');
     expect(contentContainer).toHaveTextContent('Set up your cluster');
     expect(contentContainer).toHaveTextContent('Learn with guided tours');
     expect(contentContainer).toHaveTextContent('Explore new features');

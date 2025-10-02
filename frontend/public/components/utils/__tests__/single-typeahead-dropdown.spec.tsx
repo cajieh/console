@@ -1,14 +1,10 @@
-import { screen, configure, act, waitFor, fireEvent } from '@testing-library/react';
+import { screen, act, waitFor, fireEvent } from '@testing-library/react';
 
 import { renderWithProviders } from '@console/shared/src/test-utils/unit-test-utils';
 import { SingleTypeaheadDropdown } from '../single-typeahead-dropdown';
 
 describe('SingleTypeaheadDropdown', () => {
   let onChange: jest.Mock;
-
-  beforeAll(() => {
-    configure({ testIdAttribute: 'data-test' });
-  });
 
   beforeEach(() => {
     onChange = jest.fn();
@@ -34,29 +30,20 @@ describe('SingleTypeaheadDropdown', () => {
   });
 
   it('should display the clear button when input value is present', async () => {
-    await act(async () => {
-      renderWithProviders(
-        <SingleTypeaheadDropdown
-          items={[{ value: 'test', children: 'test' }]}
-          onChange={onChange}
-          selectedKey=""
-          hideClearButton={false}
-        />,
-      );
-    });
+    renderWithProviders(
+      <SingleTypeaheadDropdown
+        items={[{ value: 'test', children: 'test' }]}
+        onChange={onChange}
+        selectedKey=""
+        hideClearButton={false}
+      />,
+    );
 
     const combobox = screen.getByRole('combobox');
+    fireEvent.change(combobox, { target: { value: 'test' } });
 
-    // Type some text into the input
-    await act(async () => {
-      fireEvent.change(combobox, { target: { value: 'test' } });
-    });
-
-    await waitFor(() => {
-      const clearButton = screen.getByRole('button', { name: /clear input value/i });
-      expect(clearButton).toBeInTheDocument();
-      expect(clearButton).toBeVisible();
-    });
+    const clearButton = await screen.findByRole('button', { name: 'Clear input value' });
+    expect(clearButton).toBeVisible();
   });
 
   it('should not display the clear button when hideClearButton is true', async () => {

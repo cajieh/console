@@ -61,9 +61,7 @@ describe('GettingStartedSection', () => {
     });
 
     // Check that all three cards are present by looking for their mocked components
-    const contentContainer = screen
-      .getByTestId('getting-started')
-      .querySelector('.ocs-getting-started-expandable-grid__content');
+    const contentContainer = screen.getByTestId('getting-started-content');
     expect(contentContainer).toHaveTextContent('Sample getting started');
     expect(contentContainer).toHaveTextContent('Quick start tutorials');
     expect(contentContainer).toHaveTextContent('Developer features');

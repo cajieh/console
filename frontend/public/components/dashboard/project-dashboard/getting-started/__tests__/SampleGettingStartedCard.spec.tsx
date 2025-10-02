@@ -54,13 +54,13 @@ describe('SampleGettingStartedCard', () => {
       );
     });
 
-    expect(screen.getByText('Create applications using samples')).toBeInTheDocument();
+    expect(screen.getByText('Create applications using samples')).toBeVisible();
 
     const viewAllSamplesLink = screen.getByRole('link', { name: 'View all samples' });
-    expect(viewAllSamplesLink).toBeInTheDocument();
+    expect(viewAllSamplesLink).toBeVisible();
     expect(viewAllSamplesLink).toHaveAttribute('href', '/samples/ns/active-namespace');
 
-    expect(screen.getByTestId('card samples')).toBeInTheDocument();
+    expect(screen.getByTestId('card samples')).toBeVisible();
 
     // Verify that loading skeletons are present for the featured items
     const loadingSkeletons = screen.getAllByTestId('getting-started-skeleton');
@@ -77,24 +77,24 @@ describe('SampleGettingStartedCard', () => {
       );
     });
 
-    expect(screen.getByText('Create applications using samples')).toBeInTheDocument();
+    expect(screen.getByText('Create applications using samples')).toBeVisible();
 
     const quarkusLink = screen.getByRole('link', { name: 'Basic Quarkus' });
-    expect(quarkusLink).toBeInTheDocument();
+    expect(quarkusLink).toBeVisible();
     expect(quarkusLink).toHaveAttribute(
       'href',
       '/import?importType=devfile&formType=sample&devfileName=code-with-quarkus&gitRepo=https://github.com/devfile-samples/devfile-sample-code-with-quarkus.git',
     );
 
     const springBootLink = screen.getByRole('link', { name: 'Basic Spring Boot' });
-    expect(springBootLink).toBeInTheDocument();
+    expect(springBootLink).toBeVisible();
     expect(springBootLink).toHaveAttribute(
       'href',
       '/import?importType=devfile&formType=sample&devfileName=java-springboot-basic&gitRepo=https://github.com/devfile-samples/devfile-sample-java-springboot-basic.git',
     );
 
     const viewAllSamplesLink = screen.getByRole('link', { name: 'View all samples' });
-    expect(viewAllSamplesLink).toBeInTheDocument();
+    expect(viewAllSamplesLink).toBeVisible();
     expect(viewAllSamplesLink).toHaveAttribute('href', '/samples/ns/active-namespace');
   });
 
@@ -106,22 +106,22 @@ describe('SampleGettingStartedCard', () => {
       renderWithProviders(<SampleGettingStartedCard />);
     });
 
-    expect(screen.getByText('Create applications using samples')).toBeInTheDocument();
+    expect(screen.getByText('Create applications using samples')).toBeVisible();
 
     // When no featured items are specified, it should show the first 2 items from the catalog
     const dotnetLink = screen.getByRole('link', { name: '.NET Core' });
-    expect(dotnetLink).toBeInTheDocument();
+    expect(dotnetLink).toBeVisible();
     expect(dotnetLink).toHaveAttribute('href', '/samples/ns/active-namespace/dotnet/openshift');
 
     const nodejsLink = screen.getByRole('link', { name: 'Basic Node.js' });
-    expect(nodejsLink).toBeInTheDocument();
+    expect(nodejsLink).toBeVisible();
     expect(nodejsLink).toHaveAttribute(
       'href',
       '/import?importType=devfile&formType=sample&devfileName=nodejs-basic&gitRepo=https://github.com/nodeshift-starters/devfile-sample.git',
     );
 
     const viewAllSamplesLink = screen.getByRole('link', { name: 'View all samples' });
-    expect(viewAllSamplesLink).toBeInTheDocument();
+    expect(viewAllSamplesLink).toBeVisible();
     expect(viewAllSamplesLink).toHaveAttribute('href', '/samples/ns/active-namespace');
   });
 });
