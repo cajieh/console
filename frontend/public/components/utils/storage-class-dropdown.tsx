@@ -152,7 +152,7 @@ export class StorageClassDropdownInnerWithTranslation extends React.Component<
   };
 
   render() {
-    const { id, loaded, describedBy, t } = this.props;
+    const { id, loaded, loadError, describedBy, t } = this.props;
     const items = {};
     _.each(
       this.state.items,
@@ -170,7 +170,7 @@ export class StorageClassDropdownInnerWithTranslation extends React.Component<
     const itemsAvailableToShow = defaultClass || _.size(items) > 1;
     return (
       <>
-        {loaded && itemsAvailableToShow && (
+        {(loaded || loadError) && (
           <div>
             <label
               className={css(this.props.hideClassName, {
@@ -180,21 +180,27 @@ export class StorageClassDropdownInnerWithTranslation extends React.Component<
             >
               {t('public~StorageClass')}
             </label>
-            <ConsoleSelect
-              className="co-storage-class-dropdown"
-              isFullWidth
-              autocompleteFilter={this.autocompleteFilter}
-              autocompletePlaceholder={t('public~Select StorageClass')}
-              items={items}
-              selectedKey={selectedKey}
-              title={this.state.title}
-              alwaysShowTitle
-              onChange={this.onChange}
-              id={id}
-              dataTest={this.props?.['data-test']}
-              menuClassName="dropdown-menu--text-wrap"
-            />
-            {describedBy && (
+            {loadError ? (
+              <div className="cos-error-title">{this.state.title}</div>
+            ) : (
+              itemsAvailableToShow && (
+                <ConsoleSelect
+                  className="co-storage-class-dropdown"
+                  isFullWidth
+                  autocompleteFilter={this.autocompleteFilter}
+                  autocompletePlaceholder={t('public~Select StorageClass')}
+                  items={items}
+                  selectedKey={selectedKey}
+                  title={this.state.title}
+                  alwaysShowTitle
+                  onChange={this.onChange}
+                  id={id}
+                  dataTest={this.props?.['data-test']}
+                  menuClassName="dropdown-menu--text-wrap"
+                />
+              )
+            )}
+            {describedBy && !loadError && (
               <p className="help-block" id={describedBy}>
                 {t('public~StorageClass for the new claim')}
               </p>
@@ -261,13 +267,16 @@ export type StorageClassDropdownInnerState = {
 export type StorageClassDropdownInnerProps = WithTranslation & {
   id?: string;
   loaded?: boolean;
+  loadError?: any;
   resources?: any;
   name: string;
   onChange: (object) => void;
   describedBy: string;
+  desc?: string;
   defaultClass: string;
   required?: boolean;
   hideClassName?: string;
   filter?: (param) => boolean;
   selectedKey?: string;
+  'data-test'?: string;
 };

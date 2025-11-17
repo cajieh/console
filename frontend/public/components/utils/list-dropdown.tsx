@@ -174,7 +174,7 @@ const ListDropdown_: React.FCC<ListDropdownProps> = ({
           autocompletePlaceholder={placeholder}
           items={renderedItems}
           selectedKey={selectedKey}
-          title={loaded ? title : <LoadingInline />}
+          title={loaded || loadError ? title : <LoadingInline />}
           alwaysShowTitle
           onChange={handleOnChange}
           id={id}
