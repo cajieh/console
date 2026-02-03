@@ -42,6 +42,30 @@ The goal of this script was to save developers time and minimize errors, as it s
 from having to manually edit json files most of the time. In some cases, such as complex pluralization,
 manual edits will be required.
 
+## i18n Validation
+`validate-i18n.js` runs as part of the general `yarn i18n` command workflow.
+This script validates both locale file structure and namespace usage in code:
+
+### Locale File Validation
+Ensures all locale files (.json) are in their correct directories:
+* Public: `public/locales/{lang}/public.json`
+* Packages: `packages/{package-name}/locales/{lang}/{namespace}.json`
+* Language codes must be valid (en, ja, zh, ko, fr, es)
+* JSON files must contain valid syntax
+
+### Namespace Prefix Validation
+Ensures translation calls use the correct namespace based on file location:
+* Files in `public/` must use `public~` prefix
+* Files in packages must use their package's namespace or `public~`
+* Examples:
+  * `packages/dev-console/` → `devconsole~` or `public~`
+  * `packages/operator-lifecycle-manager/` → `olm~` or `public~`
+  * `packages/operator-lifecycle-manager-v1/` → `olm-v1~` or `public~`
+
+The `public~` namespace can be used anywhere for shared translations.
+
+If validation fails, the script exits with non-zero status and displays detailed errors.
+
 ## Export
 `export-pos.sh` is a utility for Memsource automation. It exports all i18next json files
 in PO format in all the languages we currently support, so we can hand them off to the translation team.

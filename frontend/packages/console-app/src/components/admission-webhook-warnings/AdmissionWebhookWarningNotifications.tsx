@@ -29,7 +29,7 @@ export const AdmissionWebhookWarningNotifications = () => {
     admissionWebhookWarnings.forEach((warning, id) => {
       toastContext.addToast({
         variant: AlertVariant.warning,
-        title: t('public~Admission Webhook Warning'),
+        title: 'Admission Webhook Warning',
         content: t(`{{kind}} {{name}} violates policy {{warning}}`, {
           kind: warning?.kind ?? '',
           name: warning?.name ?? '',

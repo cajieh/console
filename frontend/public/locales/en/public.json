@@ -1759,7 +1759,6 @@
   "Pause updates": "Pause updates",
   "Add RoleBinding": "Add RoleBinding",
   "Impersonate User {{name}}": "Impersonate User {{name}}",
-  "Admission Webhook Warning": "Admission Webhook Warning",
   "{{kind}} {{name}} violates policy {{warning}}": "{{kind}} {{name}} violates policy {{warning}}",
   "Learn more": "Learn more",
   "Filter by name": "Filter by name",
