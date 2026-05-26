@@ -37,10 +37,9 @@ export const isDefaultSnapshotClass = (volumeSnapshotClass: VolumeSnapshotClassK
     defaultSnapshotClassAnnotation
   ] === 'true';
 
-const getDataViewRowsCreator: (t: TFunction) => GetDataViewRows<VolumeSnapshotClassKind> = (t) => (
-  data,
-  columns,
-) => {
+export const getDataViewRowsCreator: (t: TFunction) => GetDataViewRows<VolumeSnapshotClassKind> = (
+  t,
+) => (data, columns) => {
   return data.map(({ obj }) => {
     const name = obj.metadata?.name || '';
     const { deletionPolicy, driver } = obj;
@@ -127,7 +126,7 @@ const useVolumeSnapshotClassColumns = (): {
   return { columns, resetAllColumnWidths };
 };
 
-const VolumeSnapshotClassTable: FC<VolumeSnapshotClassTableProps> = ({
+export const VolumeSnapshotClassTable: FC<VolumeSnapshotClassTableProps> = ({
   data,
   loaded,
   ...props

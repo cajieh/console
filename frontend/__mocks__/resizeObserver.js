@@ -1,5 +1,7 @@
+/* eslint-disable */
+
 global.ResizeObserver = class {
-  constructor() {}
+  constructor(callback) {}
   disconnect() {}
   observe() {}
   unobserve() {}

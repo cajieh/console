@@ -47,7 +47,7 @@ export const tableColumnInfo = [
   { id: '' },
 ];
 
-const getDataViewRows: GetDataViewRows<VolumeSnapshotContentKind> = (data, columns) => {
+export const getDataViewRows: GetDataViewRows<VolumeSnapshotContentKind> = (data, columns) => {
   return data.map(({ obj }) => {
     const name = obj.metadata?.name || '';
     const creationTimestamp = obj.metadata?.creationTimestamp || '';
@@ -172,7 +172,7 @@ const useVolumeSnapshotContentColumns = (): {
   return { columns, resetAllColumnWidths };
 };
 
-const VolumeSnapshotContentTable: FC<VolumeSnapshotContentTableProps> = ({
+export const VolumeSnapshotContentTable: FC<VolumeSnapshotContentTableProps> = ({
   data,
   loaded,
   ...props

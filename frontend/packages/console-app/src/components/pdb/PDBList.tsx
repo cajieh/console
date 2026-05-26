@@ -32,7 +32,7 @@ export const tableColumnInfo = [
   { id: '' },
 ];
 
-const getDataViewRows: GetDataViewRows<PodDisruptionBudgetKind> = (data, columns) => {
+export const getDataViewRows: GetDataViewRows<PodDisruptionBudgetKind> = (data, columns) => {
   return data.map(({ obj: pdb }) => {
     const { name, namespace } = pdb.metadata;
     const resourceKind = referenceForModel(PodDisruptionBudgetModel);

@@ -50,7 +50,7 @@ import { snapshotSource, snapshotStatus } from '@console/shared/src/sorts/snapsh
 
 const kind = referenceForModel(VolumeSnapshotModel);
 
-const tableColumnInfo = [
+export const volumeSnapshotTableColumnInfo = [
   { id: 'name' },
   { id: 'namespace' },
   { id: 'status' },
@@ -62,7 +62,7 @@ const tableColumnInfo = [
   { id: '' },
 ];
 
-const getDataViewRows: GetDataViewRows<VolumeSnapshotKind, VolumeSnapshotRowData> = (
+export const getDataViewRows: GetDataViewRows<VolumeSnapshotKind, VolumeSnapshotRowData> = (
   data,
   columns,
 ) => {
@@ -82,20 +82,20 @@ const getDataViewRows: GetDataViewRows<VolumeSnapshotKind, VolumeSnapshotRowData
     const context = { [referenceFor(obj)]: obj };
 
     const rowCells = {
-      [tableColumnInfo[0].id]: {
+      [volumeSnapshotTableColumnInfo[0].id]: {
         cell: <ResourceLink kind={kind} name={name} namespace={namespace} />,
         props: getNameCellProps(name),
       },
-      [tableColumnInfo[1].id]: {
+      [volumeSnapshotTableColumnInfo[1].id]: {
         cell: <ResourceLink kind={NamespaceModel.kind} name={namespace} />,
       },
-      [tableColumnInfo[2].id]: {
+      [volumeSnapshotTableColumnInfo[2].id]: {
         cell: <Status status={snapshotStatus(obj)} />,
       },
-      [tableColumnInfo[3].id]: {
+      [volumeSnapshotTableColumnInfo[3].id]: {
         cell: sizeMetrics,
       },
-      [tableColumnInfo[4].id]: {
+      [volumeSnapshotTableColumnInfo[4].id]: {
         cell: (
           <ResourceLink
             kind={referenceForModel(sourceModel)}
@@ -104,7 +104,7 @@ const getDataViewRows: GetDataViewRows<VolumeSnapshotKind, VolumeSnapshotRowData
           />
         ),
       },
-      [tableColumnInfo[5].id]: {
+      [volumeSnapshotTableColumnInfo[5].id]: {
         cell: snapshotContent ? (
           <ResourceLink
             kind={referenceForModel(VolumeSnapshotContentModel)}
@@ -115,17 +115,17 @@ const getDataViewRows: GetDataViewRows<VolumeSnapshotKind, VolumeSnapshotRowData
         ),
         disabled: hideSnapshotContentColumn,
       },
-      [tableColumnInfo[6].id]: {
+      [volumeSnapshotTableColumnInfo[6].id]: {
         cell: snapshotClass ? (
           <ResourceLink kind={referenceForModel(VolumeSnapshotClassModel)} name={snapshotClass} />
         ) : (
           DASH
         ),
       },
-      [tableColumnInfo[7].id]: {
+      [volumeSnapshotTableColumnInfo[7].id]: {
         cell: <Timestamp timestamp={creationTimestamp} />,
       },
-      [tableColumnInfo[8].id]: {
+      [volumeSnapshotTableColumnInfo[8].id]: {
         cell: <LazyActionMenu context={context} />,
         props: actionsCellProps,
       },
@@ -157,66 +157,66 @@ const useVolumeSnapshotColumns = (
         {
           title: t('console-app~Name'),
           sort: 'metadata.name',
-          id: tableColumnInfo[0].id,
-          resizableProps: getResizableProps(tableColumnInfo[0].id),
+          id: volumeSnapshotTableColumnInfo[0].id,
+          resizableProps: getResizableProps(volumeSnapshotTableColumnInfo[0].id),
           props: { ...nameCellProps, modifier: 'nowrap' },
         },
         {
           title: t('console-app~Namespace'),
           sort: 'metadata.namespace',
-          id: tableColumnInfo[1].id,
-          resizableProps: getResizableProps(tableColumnInfo[1].id),
+          id: volumeSnapshotTableColumnInfo[1].id,
+          resizableProps: getResizableProps(volumeSnapshotTableColumnInfo[1].id),
           props: { modifier: 'nowrap' },
         },
         {
           title: t('console-app~Status'),
           sort: (data, direction) =>
             data.sort(sortResourceByValue(direction, sorts.volumeSnapshotStatus)),
-          id: tableColumnInfo[2].id,
-          resizableProps: getResizableProps(tableColumnInfo[2].id),
+          id: volumeSnapshotTableColumnInfo[2].id,
+          resizableProps: getResizableProps(volumeSnapshotTableColumnInfo[2].id),
           props: { modifier: 'nowrap' },
         },
         {
           title: t('console-app~Size'),
           sort: (data, direction) =>
             data.sort(sortResourceByValue(direction, sorts.volumeSnapshotSize)),
-          id: tableColumnInfo[3].id,
-          resizableProps: getResizableProps(tableColumnInfo[3].id),
+          id: volumeSnapshotTableColumnInfo[3].id,
+          resizableProps: getResizableProps(volumeSnapshotTableColumnInfo[3].id),
           props: { modifier: 'nowrap' },
         },
         {
           title: t('console-app~Source'),
           sort: (data, direction) =>
             data.sort(sortResourceByValue(direction, sorts.volumeSnapshotSource)),
-          id: tableColumnInfo[4].id,
-          resizableProps: getResizableProps(tableColumnInfo[4].id),
+          id: volumeSnapshotTableColumnInfo[4].id,
+          resizableProps: getResizableProps(volumeSnapshotTableColumnInfo[4].id),
           props: { modifier: 'nowrap' },
         },
         {
           title: t('console-app~Snapshot content'),
           sort: 'status.boundVolumeSnapshotContentName',
-          id: tableColumnInfo[5].id,
-          resizableProps: getResizableProps(tableColumnInfo[5].id),
+          id: volumeSnapshotTableColumnInfo[5].id,
+          resizableProps: getResizableProps(volumeSnapshotTableColumnInfo[5].id),
           props: { modifier: 'nowrap' },
           disabled: rowData.hideSnapshotContentColumn,
         },
         {
           title: t('console-app~VolumeSnapshotClass'),
           sort: 'spec.volumeSnapshotClassName',
-          id: tableColumnInfo[6].id,
-          resizableProps: getResizableProps(tableColumnInfo[6].id),
+          id: volumeSnapshotTableColumnInfo[6].id,
+          resizableProps: getResizableProps(volumeSnapshotTableColumnInfo[6].id),
           props: { modifier: 'nowrap' },
         },
         {
           title: t('console-app~Created at'),
           sort: 'metadata.creationTimestamp',
-          id: tableColumnInfo[7].id,
-          resizableProps: getResizableProps(tableColumnInfo[7].id),
+          id: volumeSnapshotTableColumnInfo[7].id,
+          resizableProps: getResizableProps(volumeSnapshotTableColumnInfo[7].id),
           props: { modifier: 'nowrap' },
         },
         {
           title: '',
-          id: tableColumnInfo[8].id,
+          id: volumeSnapshotTableColumnInfo[8].id,
           props: { ...actionsCellProps },
         },
       ].filter((c) => !c.disabled),
@@ -226,7 +226,7 @@ const useVolumeSnapshotColumns = (
   return { columns, resetAllColumnWidths };
 };
 
-const VolumeSnapshotTable: FC<VolumeSnapshotTableProps> = ({ data, loaded, ...props }) => {
+export const VolumeSnapshotTable: FC<VolumeSnapshotTableProps> = ({ data, loaded, ...props }) => {
   const { t } = useTranslation();
   const canListVSC = useFlag(FLAGS.CAN_LIST_VSC);
 
@@ -351,7 +351,7 @@ export const VolumeSnapshotPage: FC<VolumeSnapshotPageProps> = ({
   );
 };
 
-const checkPVCSnapshot = (
+export const checkPVCSnapshot = (
   volumeSnapshots: VolumeSnapshotKind[],
   pvc: K8sResourceKind,
 ): VolumeSnapshotKind[] =>
