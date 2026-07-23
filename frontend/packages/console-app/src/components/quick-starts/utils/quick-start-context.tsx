@@ -18,21 +18,53 @@ import { getLastLanguage } from '../../user-preferences/language/getLastLanguage
 
 export { QuickStartContextProvider } from '@patternfly/quickstarts';
 
+/**
+ * @patternfly/quickstarts looks up plurals with i18next v3 suffixes (`key` / `key_plural`)
+ * while console locales use v4 (`key_one` / `key_other`). Alias so counts like
+ * "{{count, number}} item" resolve from the console-app bundle (and pseudolocalize).
+ */
+const adaptQuickStartPluralKeys = (
+  resourceBundle: Record<string, string> = {},
+): Record<string, string> => {
+  const adapted = { ...resourceBundle };
+  Object.keys(resourceBundle).forEach((key) => {
+    if (key.endsWith('_one')) {
+      const baseKey = key.slice(0, -'_one'.length);
+      if (adapted[baseKey] === undefined) {
+        adapted[baseKey] = resourceBundle[key];
+      }
+    }
+  });
+  Object.keys(resourceBundle).forEach((key) => {
+    if (key.endsWith('_other')) {
+      const baseKey = key.slice(0, -'_other'.length);
+      const pluralKey = `${baseKey}_plural`;
+      if (adapted[pluralKey] === undefined) {
+        adapted[pluralKey] = resourceBundle[key];
+      }
+      if (adapted[baseKey] === undefined) {
+        adapted[baseKey] = resourceBundle[key];
+      }
+    }
+  });
+  return adapted;
+};
+
 export const getProcessedResourceBundle = (resourceBundle, lng) => {
   const params = new URLSearchParams(window.location.search);
   const pseudolocalizationEnabled = params.get('pseudolocalization') === 'true';
 
   const language = lng || getLastLanguage() || 'en';
-  let consoleBundle = resourceBundle;
+  let consoleBundle = resourceBundle ?? {};
   if (pseudolocalizationEnabled && language === 'en') {
     consoleBundle = {};
     const pseudo = new Pseudo({ enabled: true, wrapped: true });
-    Object.keys(resourceBundle).forEach((key) => {
+    Object.keys(resourceBundle ?? {}).forEach((key) => {
       consoleBundle[key] = pseudo.process(resourceBundle[key], '', {}, { language });
     });
   }
 
-  return consoleBundle;
+  return adaptQuickStartPluralKeys(consoleBundle);
 };
 
 const QUICKSTART_REDUX_STATE_LOCAL_STORAGE_KEY = 'bridge/quick-start-redux-state';
