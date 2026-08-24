@@ -11,7 +11,10 @@ export const usePromiseHandler: PromiseHandlerHook = <T extends unknown = any>()
         return res;
       })
       .catch((error) => {
-        setErrorMessage(error.toString?.() || 'An error occurred. Please try again.');
+        // Prefer .message so UI does not show "HttpError: …" from Error#toString()
+        setErrorMessage(
+          error?.message || error?.toString?.() || 'An error occurred. Please try again.',
+        );
         return Promise.reject(error);
       })
       .finally(() => setInProgress(false));
