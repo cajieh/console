@@ -41,6 +41,14 @@ describe('isValidAnnotationKey', () => {
 });
 
 describe('formatAnnotationsApiError', () => {
+  it('rewrites StatusCause-style for field "metadata.annotations"', () => {
+    const api =
+      'Error "Invalid value: "装飾行動レビュ": name part must consist of alphanumeric characters, \'-\', \'_\' or \'.\', and must start and end with an alphanumeric character (e.g. \'MyName\', or \'my.name\', or \'123-abc\', regex used for validation is \'([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]\')" for field "metadata.annotations".';
+    const formatted = formatAnnotationsApiError(api);
+    expect(formatted).toContain('for field "Key"');
+    expect(formatted).not.toContain('metadata.annotations');
+  });
+
   it('rewrites metadata.annotations Invalid value to Key', () => {
     const api =
       'Project "demo" is invalid: metadata.annotations: Invalid value: "装飾": name part must consist of alphanumeric characters';

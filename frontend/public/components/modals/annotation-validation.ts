@@ -39,12 +39,16 @@ export const isValidAnnotationKey = (key: string): boolean => {
 /**
  * Rewrite API error text that uses the k8s field path so it matches the
  * Edit annotations modal labels (Key / Value).
+ *
+ * Console often surfaces StatusCause style text, e.g.:
+ *   Error "Invalid value: \"…\": …" for field "metadata.annotations".
  */
 export const formatAnnotationsApiError = (message: string): string => {
   if (!message) {
     return message;
   }
   return message
+    .replace(/\bfor field "metadata\.annotations"/gi, 'for field "Key"')
     .replace(/\bmetadata\.annotations:\s*Invalid value:/gi, 'Key: Invalid value:')
     .replace(/\bmetadata\.annotations:\s*Too long:/gi, 'Annotations (Key/Value): Too long:')
     .replace(/\bmetadata\.annotations\b/g, 'Key');
