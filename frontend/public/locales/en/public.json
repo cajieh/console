@@ -984,6 +984,7 @@
   "Rollback": "Rollback",
   "Unable to Rollback": "Unable to Rollback",
   "Duplicate keys found.": "Duplicate keys found.",
+  "Invalid Key \"{{key}}\": Keys must consist of alphanumeric characters, '-', '_' or '.', and must start and end with an alphanumeric character. An optional DNS subdomain prefix (e.g. example.com/) is allowed.": "Invalid Key \"{{key}}\": Keys must consist of alphanumeric characters, '-', '_' or '.', and must start and end with an alphanumeric character. An optional DNS subdomain prefix (e.g. example.com/) is allowed.",
   "Edit annotations": "Edit annotations",
   "Annotations have been updated. Click Cancel and reapply your changes.": "Annotations have been updated. Click Cancel and reapply your changes.",
   "Edit taints": "Edit taints",

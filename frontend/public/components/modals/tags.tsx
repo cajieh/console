@@ -14,6 +14,10 @@ import { AsyncComponent } from '../utils/async';
 import { useK8sWatchResource } from '../utils/k8s-watch-hook';
 import { usePromiseHandler } from '@console/shared/src/hooks/usePromiseHandler';
 import { ModalFooterWithAlerts } from '@console/shared/src/components/modals/ModalFooterWithAlerts';
+import {
+  formatAnnotationsApiError,
+  isValidAnnotationKey,
+} from './annotation-validation';
 
 /**
  * Set up an AsyncComponent to wrap the name-value-editor to allow on demand loading to reduce the
@@ -57,6 +61,20 @@ const TagsModal = (props: TagsModalProps) => {
       setLocalErrorMessage(t('public~Duplicate keys found.'));
       return;
     }
+    const invalidKey = keys.find((key) => !isValidAnnotationKey(key));
+    if (invalidKey) {
+      // Align with UI labels (Key / Value) instead of raw k8s path metadata.annotations
+      setLocalErrorMessage(
+        t(
+          'public~Invalid Key "{{key}}": Keys must consist of alphanumeric characters, \'-\', \'_\' or \'.\', and must start and end with an alphanumeric character. An optional DNS subdomain prefix (e.g. example.com/) is allowed.',
+          {
+            key:
+              invalidKey.length > 48 ? `${invalidKey.slice(0, 48)}…` : invalidKey,
+          },
+        ),
+      );
+      return;
+    }
     // Make sure to 'add' if the path does not already exist, otherwise the patch request will fail
     const op = props.tags ? 'replace' : 'add';
     const patch = [{ path: props.path, op, value: _.fromPairs(usedTags) }];
@@ -66,6 +84,8 @@ const TagsModal = (props: TagsModalProps) => {
       .then(() => props.close())
       .catch(() => {});
   };
+
+  const displayError = formatAnnotationsApiError(errorMessage || localErrorMessage);
 
   return (
     <>
@@ -84,7 +104,7 @@ const TagsModal = (props: TagsModalProps) => {
         </Form>
       </ModalBody>
       <ModalFooterWithAlerts
-        errorMessage={errorMessage || localErrorMessage}
+        errorMessage={displayError}
         message={
           stale
             ? t('public~Annotations have been updated. Click Cancel and reapply your changes.')
