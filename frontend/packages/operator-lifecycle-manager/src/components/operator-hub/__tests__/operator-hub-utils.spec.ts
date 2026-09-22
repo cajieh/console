@@ -7,6 +7,7 @@ import type { PackageManifestKind } from '../../../types';
 import { InfrastructureFeature, OLMAnnotation, ValidSubscriptionValue } from '../index';
 import {
   defaultPackageSourceMap,
+  getPackageManifestItemUid,
   getPackageSource,
   isAWSSTSCluster,
   isAzureWIFCluster,
@@ -48,6 +49,37 @@ describe('getPackageSource', () => {
     const pm = { status: { catalogSource: 'foo' } } as PackageManifestKind;
     const source = getPackageSource(pm);
     expect(source).toEqual('foo');
+  });
+});
+
+describe('getPackageManifestItemUid', () => {
+  it('keeps package manifests from different catalog sources distinct', () => {
+    const redHatPkg = {
+      metadata: { name: 'example-operator' },
+      status: {
+        catalogSource: 'redhat-operators',
+        catalogSourceNamespace: 'openshift-marketplace',
+      },
+    } as PackageManifestKind;
+    const customPkg = {
+      metadata: { name: 'example-operator' },
+      status: { catalogSource: 'custom-catalog', catalogSourceNamespace: 'my-namespace' },
+    } as PackageManifestKind;
+
+    expect(getPackageManifestItemUid(redHatPkg)).not.toEqual(getPackageManifestItemUid(customPkg));
+  });
+
+  it('keeps package manifests from the same catalog source and namespace as a single item', () => {
+    const pkgA = {
+      metadata: { name: 'example-operator' },
+      status: { catalogSource: 'custom-catalog', catalogSourceNamespace: 'my-namespace' },
+    } as PackageManifestKind;
+    const pkgB = {
+      metadata: { name: 'example-operator' },
+      status: { catalogSource: 'custom-catalog', catalogSourceNamespace: 'my-namespace' },
+    } as PackageManifestKind;
+
+    expect(getPackageManifestItemUid(pkgA)).toEqual(getPackageManifestItemUid(pkgB));
   });
 });
 

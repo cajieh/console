@@ -35,6 +35,11 @@ export const getPackageSource = (packageManifest: PackageManifestKind): Operator
   return defaultPackageSourceMap?.[catalogSource] || catalogSourceDisplayName || catalogSource;
 };
 
+export const getPackageManifestItemUid = (packageManifest: PackageManifestKind): string => {
+  const { catalogSource, catalogSourceNamespace } = packageManifest?.status ?? {};
+  return `${packageManifest?.metadata?.name ?? 'unknown'}-${catalogSource}-${catalogSourceNamespace}`;
+};
+
 export const getClusterCatalogSource = (clusterCatalog?: string): OperatorSource =>
   defaultClusterCatalogSourceMap?.[clusterCatalog] || OperatorSource.Custom;
 

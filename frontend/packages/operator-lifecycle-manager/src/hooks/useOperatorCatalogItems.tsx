@@ -29,6 +29,7 @@ import { OperatorCreatedAt } from '../components/operator-hub/operator-created-a
 import { OperatorDescription } from '../components/operator-hub/operator-hub-item-details';
 import {
   getInfrastructureFeatures,
+  getPackageManifestItemUid,
   getPackageSource,
   getValidSubscription,
   isAWSSTSCluster,
@@ -135,7 +136,9 @@ const useOperatorCatalogItems: ExtensionHook<CatalogItem[], CatalogExtensionHook
       return [];
     }
 
-    const allItems = operatorHubPackageManifests.map((pkg): CatalogItem => {
+    const uniqueItems = new Map<string, CatalogItem>();
+
+    operatorHubPackageManifests.forEach((pkg) => {
       const { kind } = PackageManifestModel;
       const { catalogSource, catalogSourceNamespace } = pkg.status;
       const source = getPackageSource(pkg);
@@ -188,7 +191,7 @@ const useOperatorCatalogItems: ExtensionHook<CatalogItem[], CatalogExtensionHook
         currentCSVDesc?.provider?.name ||
         pkg.status.provider?.name ||
         pkg.metadata.labels?.provider;
-      const uid = `${pkg.metadata.name}-${pkg.status.catalogSource}-${pkg.status.catalogSourceNamespace}`;
+      const uid = getPackageManifestItemUid(pkg);
       const latestVersion = currentCSVDesc?.version;
       const tags = (categories ?? '')
         .toLowerCase()
@@ -280,7 +283,7 @@ const useOperatorCatalogItems: ExtensionHook<CatalogItem[], CatalogExtensionHook
           : []),
       ];
 
-      return {
+      const item: CatalogItem = {
         attributes: {
           capabilities,
           infrastructureFeatures,
@@ -426,13 +429,11 @@ const useOperatorCatalogItems: ExtensionHook<CatalogItem[], CatalogExtensionHook
         typeLabel: source,
         uid,
       };
+
+      uniqueItems.set(uid, item);
     });
-    const uniqueItems = _.uniqBy(allItems, 'uid');
-    const dupCount = allItems.length - uniqueItems.length;
-    if (dupCount > 0) {
-      console.warn(`${dupCount} duplicate PackageManifests.`);
-    }
-    return uniqueItems;
+
+    return [...uniqueItems.values()];
   }, [
     authentication,
     cloudCredentials,
