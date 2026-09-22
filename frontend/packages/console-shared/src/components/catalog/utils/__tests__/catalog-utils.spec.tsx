@@ -529,3 +529,42 @@ describe('isCatalogTypeEnabled - case-insensitive matching', () => {
     expect(isCatalogTypeEnabled('template')).toBe(true);
   });
 });
+
+describe('catalog search by resource name', () => {
+  // Same package from a default and a custom catalog source, with different display names
+  const redhatItem = createMockCatalogItem({
+    uid: 'advanced-cluster-management-redhat-operators-openshift-marketplace',
+    name: 'Advanced Cluster Management for Kubernetes',
+    description: '',
+    data: { obj: { metadata: { name: 'advanced-cluster-management' } } },
+  });
+  const customItem = createMockCatalogItem({
+    uid: 'advanced-cluster-management-acm-art-openshift-marketplace',
+    name: 'Open Cluster Management Hub',
+    description: '',
+    data: { obj: { metadata: { name: 'advanced-cluster-management' } } },
+  });
+
+  it('scores a package name match', () => {
+    // Metadata contains (80) + exact bonus (40) + starts bonus (20) = 140
+    expect(calculateCatalogItemRelevanceScore('advanced-cluster-management', customItem)).toBe(140);
+  });
+
+  it('matches a package name with hyphens treated as spaces', () => {
+    expect(
+      calculateCatalogItemRelevanceScore('advanced cluster management', customItem),
+    ).toBeGreaterThan(0);
+  });
+
+  it('returns items from every catalog source that share a package name', () => {
+    ['advanced-cluster-management', 'advanced cluster management'].forEach((query) => {
+      const uids = keywordCompare(query, [redhatItem, customItem]).map((item) => item.uid);
+      expect(uids).toEqual(expect.arrayContaining([redhatItem.uid, customItem.uid]));
+    });
+  });
+
+  it('does not match items without a resource name on unrelated terms', () => {
+    const item = createMockCatalogItem({ name: 'Other', description: '' });
+    expect(calculateCatalogItemRelevanceScore('advanced-cluster-management', item)).toBe(0);
+  });
+});

@@ -49,6 +49,11 @@ const SCORE = {
   TITLE_EXACT_BONUS: 50,
   TITLE_STARTS_BONUS: 25,
 
+  // Resource name matches, e.g. an operator's package name (high priority)
+  METADATA_CONTAINS: 80,
+  METADATA_EXACT_BONUS: 40,
+  METADATA_STARTS_BONUS: 20,
+
   // Keywords/tags matches (medium priority)
   KEYWORD_MATCH: 60,
 
@@ -93,6 +98,25 @@ export const calculateCatalogItemRelevanceScore = (
       // Title starts with search term gets bonus points
       if (itemName.startsWith(searchTerm)) {
         score += SCORE.TITLE_STARTS_BONUS;
+      }
+    }
+  }
+
+  // Resource name matches get high weight. Items from different sources can share a resource name
+  // but have different display names (e.g. an operator package from a custom catalog source), so
+  // match on the name with hyphens treated as spaces on both sides.
+  const metadataName = item.data?.obj?.metadata?.name;
+  if (typeof metadataName === 'string' && metadataName) {
+    const toWords = (value: string) => value.replace(/-/g, ' ');
+    const name = toWords(metadataName.toLowerCase());
+    const term = toWords(searchTerm);
+    if (name.includes(term)) {
+      score += SCORE.METADATA_CONTAINS;
+      if (name === term) {
+        score += SCORE.METADATA_EXACT_BONUS;
+      }
+      if (name.startsWith(term)) {
+        score += SCORE.METADATA_STARTS_BONUS;
       }
     }
   }
